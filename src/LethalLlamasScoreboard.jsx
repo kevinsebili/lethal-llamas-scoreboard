@@ -158,36 +158,87 @@ export default function LethalLlamasScoreboard() {
   };
 
   // --- Winner logic (unchanged behavior, restored) ---
-  const lastRound = history[history.length - 1];
-  let winner = "";
+    let winner = "";
+    const lastRound = history[history.length - 1];
 
-  if (wtfA === 0 && wtfB === 0 && lastRound) {
-    const dmgA = Math.abs(Math.min(lastRound.deltaA, 0));
-    const dmgB = Math.abs(Math.min(lastRound.deltaB, 0));
-    if (dmgA === dmgB) winner = "Tie";
-    else winner = dmgA < dmgB ? teamA : teamB;
-  } else if (wtfA === wtfB) winner = "Tie";
-  else winner = wtfA < wtfB ? teamB : teamA;
+    if (wtfA === 0 && wtfB === 0 && lastRound) {
+      const dmgA = lastRound.deltaA; // negative number (e.g. -20)
+      const dmgB = lastRound.deltaB; // negative number (e.g. -10)
+
+      if (dmgA === dmgB) {
+        winner = "Tie";
+      } else {
+        // less negative = took less damage = winner
+        winner = dmgA > dmgB ? teamA : teamB;
+      }
+    } else if (wtfA === wtfB) {
+      winner = "Tie";
+    } else {
+      winner = wtfA < wtfB ? teamB : teamA;
+    }
+
+
+
 
   return (
-    <div className="min-h-screen pb-28 bg-gradient-to-b from-neutral-900 to-neutral-800 text-white p-4 flex flex-col gap-4">
+  <div className="relative min-h-screen pb-28 bg-gradient-to-b from-neutral-900 to-neutral-800 text-white p-4 flex flex-col gap-4">
       <h1 className="text-2xl font-bold text-center">Lethal Llamas</h1>
+      <button
+  onClick={() => window.open("/rules.html", "_blank")}
+  title="Game Instructions"
+  className="
+    absolute
+    top-4 right-4
+    bg-white
+    text-black
+    rounded-full
+    p-3
+    shadow-lg
+    hover:bg-gray-100
+    active:scale-95
+    transition
+  "
+>
+  📜
+</button>
+
+
 
       {stage === "start" && (
-        <button onClick={() => setStage("mode")} className="bg-purple-600 rounded-2xl py-4 text-xl">
-          Start New Game
-        </button>
-      )}
-
-      {stage === "mode" && (
-        <div className="flex flex-col gap-4">
-          <button onClick={() => startGame("2v2")} className="bg-blue-600 rounded-2xl py-4">2 vs 2 (200 WTF)</button>
-          <button onClick={() => startGame("3v3")} className="bg-red-600 rounded-2xl py-4">3 vs 3 (300 WTF)</button>
+        <div className="flex flex-1 items-center justify-center">
+          <button
+            onClick={() => setStage("mode")}
+            className="bg-purple-600 rounded-2xl py-4 px-8 text-xl"
+          >
+            Start New Game
+          </button>
         </div>
       )}
 
+
+      {stage === "mode" && (
+        <div className="flex flex-1 items-center justify-center">
+          <div className="flex flex-col gap-6 w-full max-w-sm">
+            <button
+              onClick={() => startGame("2v2")}
+              className="bg-blue-600 rounded-2xl py-4 text-lg"
+            >
+              2 vs 2 (200 WTF)
+            </button>
+
+            <button
+              onClick={() => startGame("3v3")}
+              className="bg-red-600 rounded-2xl py-4 text-lg"
+            >
+              3 vs 3 (300 WTF)
+            </button>
+          </div>
+        </div>
+      )}
+
+
       {stage === "setup" && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 mt-6">
           <input placeholder="Team A name" value={teamA} onChange={(e) => setTeamA(e.target.value)} className="p-3 rounded-xl text-black" />
           <input placeholder="Team B name" value={teamB} onChange={(e) => setTeamB(e.target.value)} className="p-3 rounded-xl text-black" />
           <button onClick={beginMatch} className="bg-green-500 rounded-2xl py-3">Begin Match</button>
