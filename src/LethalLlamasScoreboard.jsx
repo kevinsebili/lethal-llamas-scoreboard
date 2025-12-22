@@ -157,25 +157,25 @@ export default function LethalLlamasScoreboard() {
     setRound(1);
   };
 
-  // --- Winner logic (unchanged behavior, restored) ---
-    let winner = "";
-    const lastRound = history[history.length - 1];
+// --- Winner logic final scores ---
+let winner = "";
 
-    if (wtfA === 0 && wtfB === 0 && lastRound) {
-      const dmgA = lastRound.deltaA; // negative number (e.g. -20)
-      const dmgB = lastRound.deltaB; // negative number (e.g. -10)
+// Start both teams at max WTF
+let finalScoreA = maxWTF;
+let finalScoreB = maxWTF;
 
-      if (dmgA === dmgB) {
-        winner = "Tie";
-      } else {
-        // less negative = took less damage = winner
-        winner = dmgA > dmgB ? teamA : teamB;
-      }
-    } else if (wtfA === wtfB) {
-      winner = "Tie";
-    } else {
-      winner = wtfA < wtfB ? teamB : teamA;
-    }
+// Replay ALL rounds without clamping
+history.forEach((r) => {
+  finalScoreA += r.deltaA;
+  finalScoreB += r.deltaB;
+});
+
+if (finalScoreA === finalScoreB) {
+  winner = "Tie";
+} else {
+  winner = finalScoreA > finalScoreB ? teamA : teamB;
+}
+
 
 
 
@@ -296,7 +296,13 @@ export default function LethalLlamasScoreboard() {
       {stage === "end" && (
         <div className="bg-black/30 rounded-2xl p-6 text-center flex flex-col gap-3">
           <h2 className="text-2xl font-bold">Game Over</h2>
-          <p className="text-lg">Winner: <strong>{winner}</strong></p>
+          <p className="text-lg">
+            Winner: <strong>{winner}</strong>
+          </p>
+          <p className="text-sm opacity-80">
+            Final Scores — {teamA}: {finalScoreA} WTF · {teamB}: {finalScoreB} WTF
+          </p>
+
           <button onClick={() => setStage("mode")} className="bg-purple-600 rounded-xl py-2">New Game</button>
           <button onClick={() => { setWtfA(maxWTF); setWtfB(maxWTF); setRound(1); setHistory([]); setStage("game"); }} className="bg-green-600 rounded-xl py-2">Rematch</button>
         </div>
